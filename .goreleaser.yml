@@ -1,0 +1,44 @@
+version: 2
+
+builds:
+  - id: audeck
+    main: ./cmd/audeck
+    binary: audeck
+    env:
+      - CGO_ENABLED=1
+      - CGO_LDFLAGS=-framework CoreAudio -framework AudioToolbox -framework CoreFoundation
+    ldflags:
+      - -s -w -X main.version={{.Version}}
+    goos:
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+
+archives:
+  - id: audeck
+    formats:
+      - tar.gz
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+
+checksum:
+  name_template: "checksums.txt"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^ci:"
+
+brews:
+  - repository:
+      owner: abdulachik
+      name: homebrew-tap
+    name: audeck
+    homepage: "https://github.com/abdulachik/audeck"
+    description: "TUI audio control deck for macOS"
+    license: "MIT"
+    install: |
+      bin.install "audeck"

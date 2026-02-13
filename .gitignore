@@ -1,0 +1,7 @@
+build/
+dist/
+audeck
+*.exe
+*.test
+*.out
+.DS_Store
