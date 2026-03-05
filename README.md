@@ -37,7 +37,9 @@ go build -o audeck ./cmd/audeck
 
 ## Usage
 
-```
+### TUI Mode
+
+```sh
 audeck [flags]
 ```
 
@@ -45,8 +47,66 @@ audeck [flags]
 |------|-------------|
 | `--version` | Print version and exit |
 | `--debug` | Enable debug logging to `/tmp/audeck.log` |
+| `-j, --json` | Output in JSON format (for CLI commands) |
+| `--config` | Override config file path |
 
-### Keybindings
+### Environment Variables
+
+| Variable | Description |
+|----------|-------------|
+| `AUDECK_DEBUG=1` | Enable debug logging |
+| `AUDECK_CONFIG=path` | Override config file path |
+
+### CLI Commands
+
+Audeck also provides a full-featured CLI for scripting and automation:
+
+```sh
+# List all audio devices
+audeck list
+audeck list --type output    # Only output devices
+audeck list --type input     # Only input devices
+audeck list --json           # JSON output
+
+# Search for devices by name
+audeck search "speaker"
+audeck search "bluetooth" --json
+
+# Get default device
+audeck default get                 # Default output
+audeck default get input           # Default input
+audeck default get --json          # JSON output
+
+# Set default device
+audeck default set 76              # By device ID
+audeck default set "Speakers"      # By device name
+audeck default set --type input 83 # Set input device
+
+# Volume control
+audeck volume get                  # Get default device volume
+audeck volume get 76               # Get specific device volume
+audeck volume set 50               # Set volume to 50%
+audeck volume up                   # Increase by 5%
+audeck volume down 10              # Decrease by 10%
+audeck volume up --device 76       # Control specific device
+
+# Mute control
+audeck mute get                    # Get mute state
+audeck mute set on                 # Mute
+audeck mute set off                # Unmute
+audeck mute toggle                 # Toggle mute
+
+# System info
+audeck info                        # Audio system information
+audeck info --json                 # JSON output
+
+# Shell completions
+audeck completion bash > /etc/bash_completion.d/audeck
+audeck completion zsh > /usr/local/share/zsh/site-functions/_audeck
+audeck completion fish > ~/.config/fish/completions/audeck.fish
+```
+
+### Keybindings (TUI)
 
 | Key | Action |
 |-----|--------|
