@@ -28,7 +28,7 @@ tasks:
     cmds:
       - mkdir -p {{.BUILD_DIR}}
       - go build -o {{.BINARY}} {{.MAIN_PATH}}
-      - echo "✓ Built {{.BINARY}}"
+      - echo "Built {{.BINARY}}"
 
   run:
     desc: Build and run the TUI application
@@ -45,11 +45,9 @@ tasks:
 
   test:coverage:
     desc: Run tests with coverage report
-    deps: [test]
     cmds:
       - go test -coverprofile=coverage.out ./...
       - go tool cover -html=coverage.out -o coverage.html
-      - echo "✓ Coverage report: coverage.html"
 
   test:race:
     desc: Run tests with race detector
@@ -72,40 +70,40 @@ tasks:
     aliases: [format, f]
     cmds:
       - gofmt -w .
-      - echo "✓ Formatted source files"
+      - echo "Formatted source files"
 
   tidy:
     desc: Tidy Go modules
     cmds:
       - go mod tidy
-      - echo "✓ Modules tidied"
+      - echo "Modules tidied"
 
   vet:
     desc: Run go vet
     cmds:
       - go vet ./...
-      - echo "✓ go vet passed"
+      - echo "go vet passed"
 
   clean:
     desc: Clean build artifacts
     cmds:
       - rm -rf {{.BUILD_DIR}}
       - rm -f coverage.out coverage.html
-      - echo "✓ Cleaned"
+      - echo "Cleaned"
 
   install:
     desc: Install dependencies
     cmds:
       - go mod download
       - go mod verify
-      - echo "✓ Dependencies installed"
+      - echo "Dependencies installed"
 
   update:
     desc: Update dependencies to latest versions
     cmds:
       - go get -u ./...
       - go mod tidy
-      - echo "✓ Dependencies updated"
+      - echo "Dependencies updated"
 
   # Development helpers
   dev:
@@ -124,7 +122,7 @@ tasks:
     desc: Show current git version
     cmds:
       - git describe --tags --always --dirty
-      - echo "✓ Version info displayed"
+      - echo "Version info displayed"
 
   # Quick commands
   l:
@@ -156,10 +154,10 @@ tasks:
     desc: Run full CI pipeline
     deps: [tidy, vet, lint, test, build]
     cmds:
-      - echo "✓ CI pipeline complete"
+      - echo "CI pipeline complete"
 
   check:
     desc: Run all checks (lint, vet, test)
     deps: [vet, lint, test]
     cmds:
-      - echo "✓ All checks passed"
+      - echo "All checks passed"
