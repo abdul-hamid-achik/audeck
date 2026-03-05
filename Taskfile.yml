@@ -1,53 +1,165 @@
 version: '3'
 
 env:
-  CGO_ENABLED: 1
-  CGO_LDFLAGS: -framework CoreAudio -framework AudioToolbox -framework Foundation
+  CGO_ENABLED: "1"
+  CGO_LDFLAGS: "-framework CoreAudio -framework AudioToolbox -framework Foundation"
 
 vars:
   APP_NAME: audeck
-  BUILD_DIR: build
+  BUILD_DIR: bin
+  MAIN_PATH: ./cmd/audeck
+  BINARY: "{{.BUILD_DIR}}/{{.APP_NAME}}"
 
 tasks:
+  default:
+    desc: Show available tasks
+    cmds:
+      - task --list
+
   build:
     desc: Build the application
+    aliases: [b]
+    sources:
+      - "**/*.go"
+      - go.mod
+      - go.sum
+    generates:
+      - "{{.BINARY}}"
     cmds:
       - mkdir -p {{.BUILD_DIR}}
-      - go build -o {{.BUILD_DIR}}/{{.APP_NAME}} ./cmd/audeck
+      - go build -o {{.BINARY}} {{.MAIN_PATH}}
+      - echo "✓ Built {{.BINARY}}"
 
   run:
-    desc: Build and run the application
+    desc: Build and run the TUI application
+    aliases: [start]
     deps: [build]
     cmds:
-      - ./{{.BUILD_DIR}}/{{.APP_NAME}}
+      - ./{{.BINARY}}
 
   test:
-    desc: Run tests
+    desc: Run all tests
+    aliases: [t]
     cmds:
-      - go test ./...
+      - go test -v ./...
+
+  test:coverage:
+    desc: Run tests with coverage report
+    deps: [test]
+    cmds:
+      - go test -coverprofile=coverage.out ./...
+      - go tool cover -html=coverage.out -o coverage.html
+      - echo "✓ Coverage report: coverage.html"
+
+  test:race:
+    desc: Run tests with race detector
+    cmds:
+      - go test -race -v ./...
 
   lint:
-    desc: Run linter
+    desc: Run linter (golangci-lint)
+    aliases: [l]
     cmds:
       - golangci-lint run ./...
 
-  clean:
-    desc: Clean build artifacts
+  lint:fix:
+    desc: Run linter and auto-fix issues
     cmds:
-      - rm -rf {{.BUILD_DIR}}
+      - golangci-lint run --fix ./...
 
   fmt:
     desc: Format Go source files
+    aliases: [format, f]
     cmds:
       - gofmt -w .
+      - echo "✓ Formatted source files"
+
+  tidy:
+    desc: Tidy Go modules
+    cmds:
+      - go mod tidy
+      - echo "✓ Modules tidied"
 
   vet:
     desc: Run go vet
     cmds:
       - go vet ./...
+      - echo "✓ go vet passed"
+
+  clean:
+    desc: Clean build artifacts
+    cmds:
+      - rm -rf {{.BUILD_DIR}}
+      - rm -f coverage.out coverage.html
+      - echo "✓ Cleaned"
 
   install:
     desc: Install dependencies
     cmds:
       - go mod download
+      - go mod verify
+      - echo "✓ Dependencies installed"
+
+  update:
+    desc: Update dependencies to latest versions
+    cmds:
+      - go get -u ./...
       - go mod tidy
+      - echo "✓ Dependencies updated"
+
+  # Development helpers
+  dev:
+    desc: Run in development mode with debug logging
+    deps: [build]
+    cmds:
+      - AUDECK_DEBUG=1 ./{{.BINARY}}
+
+  watch:
+    desc: Watch for changes and rebuild (requires entr)
+    cmds:
+      - find . -name '*.go' | entr -r task build
+
+  # Release helpers
+  version:
+    desc: Show current git version
+    cmds:
+      - git describe --tags --always --dirty
+      - echo "✓ Version info displayed"
+
+  # Quick commands
+  l:
+    desc: List audio devices
+    deps: [build]
+    cmds:
+      - ./{{.BINARY}} list
+
+  search:
+    desc: Search for audio devices
+    deps: [build]
+    cmds:
+      - ./{{.BINARY}} search "{{.CLI_ARGS}}"
+
+  info:
+    desc: Show audio system info
+    deps: [build]
+    cmds:
+      - ./{{.BINARY}} info
+
+  config:
+    desc: Show configuration
+    deps: [build]
+    cmds:
+      - ./{{.BINARY}} config show
+
+  # CI/CD
+  ci:
+    desc: Run full CI pipeline
+    deps: [tidy, vet, lint, test, build]
+    cmds:
+      - echo "✓ CI pipeline complete"
+
+  check:
+    desc: Run all checks (lint, vet, test)
+    deps: [vet, lint, test]
+    cmds:
+      - echo "✓ All checks passed"

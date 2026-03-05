@@ -1,7 +1,9 @@
-build/
+bin/
 dist/
 audeck
 *.exe
 *.test
 *.out
 .DS_Store
+coverage.out
+coverage.html
