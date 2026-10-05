@@ -34,10 +34,10 @@ changelog:
 
 brews:
   - repository:
-      owner: abdulachik
+      owner: abdul-hamid-achik
       name: homebrew-tap
     name: audeck
-    homepage: "https://github.com/abdulachik/audeck"
+    homepage: "https://github.com/abdul-hamid-achik/audeck"
     description: "TUI audio control deck for macOS"
     license: "MIT"
     install: |
